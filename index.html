@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cube Demo</title>
+  <style>
+    html,body{
+      margin: 0;
+      padding: 0;
+    }
+    #bg{
+      height: 140vh;
+      width: 100vw;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: radial-gradient(circle at 50% 25%, #2a2a2a, #000 80%);
+    }
+    #btn{
+      transform: translate(0px, 0px);
+      color:#fff;
+      position: fixed;
+      left:60px;
+      cursor: pointer;
+      z-index:1;
+    }
+    #loader {
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      background: black;
+      z-index: 9999;
+    }
+    #head h1{
+      transform: translate(0px, 0px);
+      color:#fff;
+      z-index:9999;
+    }
+  </style>
+</head>
+<body>
+  <div id="bg"></div>
+  <h3 id="btn">Cube Demo</h3>
+  <div id="scroll-container">
+    <header id="head">
+      <h1>&nbsp;</h1>
+    </header>
+  </div>
+  <script type="x-shader/x-vertex" id="shaderFrag" >mediump float;varying vec2 vTextureCoord;uniform sampler2D uSampler;uniform float time;uniform float frequency;uniform float amplitude;uniform float amplitudeY;uniform float speed;void main(){vec2 position=vTextureCoord;float distortion=sin(position.y * frequency + time * speed) * amplitude;float distortion2=sin(position.x * frequency + time * speed) * amplitudeY;gl_FragColor=texture2D(uSampler, vec2(position.x + distortion, position.y + distortion2));}</script>
+  <script type="x-shader/x-vertex" id="vertexshader">varying vec2 vUv;void main() {vUv = uv;gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );}</script>
+  <script type="x-shader/x-fragment" id="fragmentshader">uniform sampler2D baseTexture;uniform sampler2D bloomTexture;varying vec2 vUv;vec4 getTexture( sampler2D texelToLinearTexture ) {return mapTexelToLinear( texture2D( texelToLinearTexture , vUv ) );}void main() {vec4 baseColor = getTexture( baseTexture );vec3 bloom = getTexture( bloomTexture ).rgb;float bloomAlpha = sqrt((bloom.r + bloom.g + bloom.b) / 3.0);float alpha = mix(bloomAlpha, baseColor.a, sign(baseColor.a));gl_FragColor = vec4(baseColor.rgb + bloom, alpha);}</script>
+  <script src="./src/three.min.js"></script>
+  <script src="./src/pixi.min.js"></script>
+  <script src="./src/plugins/OrbitControls.min.js"></script>
+  <script src="./src/plugins/GLTFLoader.min.js"></script>
+  <script src="./src/plugins/CopyShader.js"></script>
+  <script src="./src/plugins/EffectComposer.js"></script>
+  <script src="./src/plugins/LuminosityHighPassShader.js"></script>
+  <script src="./src/plugins/RenderPass.js"></script>
+  <script src="./src/plugins/ShaderPass.js"></script>
+  <script src="./src/plugins/UnrealBloomPass.js"></script>
+  <script src="./src/gsap.min.js"></script>
+  <script src="./src/ScrollToPlugin.min.js"></script>
+  <script src="./src/main.js"></script>
+  <script>
+    const textEl = document.getElementById('btn');
+    textEl.onclick = function () {
+      TweenMax.to(
+        window, 
+        1,
+        {
+          scrollTo: { 
+            y: 20, 
+            autoKill: true
+          },
+          ease: Power3.easeOut
+        }
+      )
+    }
+  </script>
+</body>
+</html>
